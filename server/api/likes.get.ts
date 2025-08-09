@@ -1,18 +1,15 @@
-import { readFile } from 'fs/promises'
+import { getStore } from '@netlify/blobs'
 
-// asynchrones Laden der Daten
 export default defineEventHandler(async (e) => {
 
-  const query = getQuery(e);
-  const user = query.user;
+    // gettet user aus der query, dessen likes abgefragt werden sollen
+    const user = getQuery(e).user;
+    if (!user || typeof user !== 'string') return [];
 
-  const likes = JSON.parse(await readFile('data/likes.json', 'utf-8'));
 
+    const store = getStore("likes-store");
+    const allLikesJson = await store.get("allLikes");
+    const allLikes = allLikesJson ? JSON.parse(allLikesJson) : {}
 
-  if (!user || typeof user !== 'string') {
-        return []
-  }
-
-  return likes[user] || []
-
+    return allLikes[user] || []
 })

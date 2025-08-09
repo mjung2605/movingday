@@ -1,35 +1,31 @@
-// to parse and write json
-import { readFile, writeFile } from 'fs/promises'
+import { getStore } from '@netlify/blobs'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (e) => {
 
-  const body = await readBody(event); // user, itemId, isLiked
-
-  console.log('POST /api/likes body:', body);
-
-  const likes = JSON.parse(await readFile('data/likes.json', 'utf-8'));
-
-
-  if (!likes[body.user]) likes[body.user] = []
-  // Falls der User noch nicht in der Datei steht, leeres Array anlegen
-
-  if (body.isLiked) {
-    
-    if (!likes[body.user].includes(body.itemId)) {
-      likes[body.user].push(body.itemId) // ID hinzufügen, wenn noch nicht drin
+    const body = await readBody(e)  // user, itemId, isLiked 
+    if (!body.user || !body.itemId) {
+        return { success: false, message: 'User und/oder itemId fehlen' }
     }
-  } else {
-    // Fall: Der User klickt "Nein, nicht mehr interessiert"
-    likes[body.user] = likes[body.user].filter((id: any) => id !== body.itemId)
-    // Entfernt die ID aus dem Array
-  }
 
-  await writeFile('data/likes.json', JSON.stringify(likes, null, 2))
+    const store = getStore("likes-store");
+    const likesJson = await store.get("allLikes");
+    const likes = likesJson ? JSON.parse(likesJson) : {}
 
-  console.log('Likes gespeichert:', likes);
-  // Speichert die geänderte Likes-Struktur wieder in die Datei
-  // null, 2 sorgt für schön formatierten JSON-Text
+    // benutzt allLikes von user, falls es existiert, sonst neuer array erstellt
+    likes[body.user] = likes[body.user] || []
 
-  return { success: true } // Antwort an den Client
+    if (body.isLiked) {
+    
+      if (!likes[body.user].includes(body.itemId)) {
+          likes[body.user].push(body.itemId)
+      }
+    } else {
+    
+        likes[body.user] = likes[body.user].filter((id: any) => id !== body.itemId)
+    }
 
+    // writes db
+    await store.set("allLikes", JSON.stringify(likes))
+
+    return { success: true }
 })
