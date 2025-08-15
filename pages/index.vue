@@ -31,12 +31,12 @@
                 <button 
                     v-if="!likes.includes(i.id)" 
                     @click="toggleLike(i.id, true)">
-                    Interessiert
+                    <Icon name="material-symbols:favorite-outline-rounded" />
                 </button>
                 <button 
                     v-else
                     @click="toggleLike(i.id, false)">
-                    Nicht Interessiert
+                    <Icon name="material-symbols:favorite-rounded" />
                 </button>
 
             </div>
@@ -136,7 +136,9 @@
     const wrongPw = ref(false);
     const authOk = ref(false);
 
+    // speichert current user
     const user = ref('');
+    console.log("user gesetzt");
 
     function checkPw() {
         if (inputPw.value === pw) {
@@ -155,52 +157,52 @@
 
     /* Likes */
 
-    const likes = ref([]);
+    const userLikes = ref([]);
+    const allLikes = ref([]);
 
     async function loadLikes() {
-        const { data } = await useFetch(`/api/likes?user=${user.value}`);
-        if (data.value) likes.value = data.value;
+
+
+        // lädt likes vom aktiven user
+        userLikes.value = await useFetch(`/api/likes?user=${user.value}`).data.value;
+        console.log(`user likes: ${userLikes.value}`);
+        // lädt likes von allen usern 
+        allLikes.value = await useFetch(`/api/likes`).data.value;
+        console.log(`all likes: ${allLikes.value}`);
+        
     }
 
+    // handling von like/dislike ist im server code selbst... hier nur boolean übergeben
     async function toggleLike(itemId, isLiked) {
-        
-        // wenn etwas geliked werden soll - live update (ref)
-        if (isLiked) {
-        // wenn nicht schon geliked, dann hinzufügen zu likes array
-            if (!likes.value.includes(itemId)) {
-                likes.value.push(itemId)
-            }
-        } else {
-            // wenn etwas entliked werden soll - live update (ref)
-            likes.value = likes.value.filter(id => id !== itemId)
+      await $fetch('/api/likes', {
+        method: 'POST',
+        body: {
+          user: user.value,
+          itemId,
+          isLiked
         }
+      })
+      
+      await loadLikes() // neu laden, aktualisiert ui
 
-        // asynchrone kommunikation mit backend - POST
-        try {
-            const res = await fetch('/api/likes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user: user.value,
-                    itemId: itemId,
-                    isLiked: isLiked
-                })
-            })
-
-            const json = await res.json();
-            console.log('json antwort:', json);
-
-        } catch (e) {
-            console.error('Fehler', e)
-        }
-        
     }
 
-    // sobald usesr gesetzt ist, laden die likes
+    function isLikedBySomeone(itemId) {
+        // schaut, ob in alllikes array die id von dem aktuellen item vorkommt und NICHT von aktivem user geliked wurde
+        return allLikes.value.some(like => like.item_id === itemId && like.username !== user.value)
+    }
+
+    // sobald user gesetzt ist, laden die likes
     watch(user, async (newUser) => {
         if (newUser) {
-        await loadLikes()
+            
+            await loadLikes()
+        }
     }
-})
+
+
+
+
+)
 
 </script>
