@@ -11,7 +11,8 @@ export default defineNuxtConfig({
       FB_PROJECT_ID: process.env.NUXT_FB_PROJECT_ID,
       FB_STORAGE_BUCKET: process.env.NUXT_FB_STORAGE_BUCKET,
       FB_MESSAGING_SENDER_ID: process.env.NUXT_FB_MESSAGING_SENDER_ID,
-      FB_APP_ID: process.env.NUXT_FB_APP_ID
+      FB_APP_ID: process.env.NUXT_FB_APP_ID,
+      DATABASE_URL: process.env.DATABASE_URL
     }
   }
 })
