@@ -12,11 +12,10 @@
         </div>
         <div v-else-if="!user" class="auth">
             <p>Hi! Wer bist du?</p>
-            <button @click="user = 'Kathi'">Kathi</button>
-            <button @click="user = 'Jana'">Jana</button>
+            <button v-for="u in users" :key="u.id" @click="setUser(u.id, u.name)">{{ u.name }}</button>
         </div>
         <div v-else class="auth items">
-            <h3>Hi {{ user }}!</h3>
+            <h3>Hi {{ user.name }}!</h3>
 
             <p>Für Tipps und alles was mir zum Umzug einfällt: <a href="/checklist">Umzugs-Checklist</a></p>
             <p>Stöber gerne durch unsere übriggebliebenen Gegenstände und Möbel und like die, an denen du Interesse hast!</p>
@@ -25,11 +24,16 @@
 
             <div v-for="i in items" :key="i.id" class="card">
 
-                <img :src=i.image alt="Bild des Objekts" width="200px">
+                <!-- <img :src=i.image alt="Bild des Objekts" width="200px">
+                -->
+                
+
                 <h3>{{ i.title }}</h3>
                 <p>{{ i.desc }}</p>
+             
+                
                 <button 
-                    v-if="!likes.includes(i.id)" 
+                    v-if="!userLikes?.includes(i.id)" 
                     @click="toggleLike(i.id, true)">
                     <Icon name="material-symbols:favorite-outline-rounded" />
                 </button>
@@ -38,6 +42,9 @@
                     @click="toggleLike(i.id, false)">
                     <Icon name="material-symbols:favorite-rounded" />
                 </button>
+                
+
+
 
             </div>
 
@@ -94,7 +101,7 @@
     }
     input {
         border-radius: 4px;
-        margin: 4px;
+        margin: 8px;
         border: solid 1px lightgrey;
         padding: 8px;
     }
@@ -128,17 +135,13 @@
 <script setup>
 
 
-    /* Very Simple Auth Logic */
+    /* Simple Auth */
     const config = useRuntimeConfig();
     const pw = config.public.PASSWORT;
 
     const inputPw = ref('');
     const wrongPw = ref(false);
     const authOk = ref(false);
-
-    // speichert current user
-    const user = ref('');
-    console.log("user gesetzt");
 
     function checkPw() {
         if (inputPw.value === pw) {
@@ -150,47 +153,88 @@
         }
     }
 
+    /* Users */
+
+    // user id
+    const user = ref(null);
+
+    const { data: users } = await useFetch('/api/users');
+    function setUser(id, name) {
+        user.value = { id, name }
+    }
+
+
     /* Items */
 
     // destrukturierung gettet direkt data eigenschaft aus dem useFetch Promise AS ITEMS -> später aufruf als items.value... weils sonst alles data heißen würde
-    const {data : items} = await useFetch('/api/items');
+    const { data : items } = await useFetch('/api/items');
 
     /* Likes */
+
+    // useFetch ist ein Nuxt Composable, $fetch ein einfacher HTTP Wrapper, gibt direkt JSON response zurück
 
     const userLikes = ref([]);
     const allLikes = ref([]);
 
     async function loadLikes() {
 
-
         // lädt likes vom aktiven user
-        userLikes.value = await useFetch(`/api/likes?user=${user.value}`).data.value;
+        /*
+        const uLikes = await $fetch(`/api/likes?user=${user.value.id}`);
+        // id extrahieren (für includes oben beim button) - noch cleaner machen?
+        userLikes.value = uLikes?.map(l => l.item_id) || [];
+
         console.log(`user likes: ${userLikes.value}`);
+        */
+
+
         // lädt likes von allen usern 
-        allLikes.value = await useFetch(`/api/likes`).data.value;
+        const aLikes = await $fetch(`/api/likes`);
+        allLikes.value = aLikes?.map(l => l.item_id) || []; // allLikes: array von geliketen items_ids
+
         console.log(`all likes: ${allLikes.value}`);
+
+        // holt likes von aktivem nutzer raus
+        const uLikes = aLikes.filter(l => l.user_id === user.value.id);
+        userLikes.value = uLikes.map(l => l.item_id);
         
     }
 
     // handling von like/dislike ist im server code selbst... hier nur boolean übergeben
     async function toggleLike(itemId, isLiked) {
-      await $fetch('/api/likes', {
-        method: 'POST',
-        body: {
-          user: user.value,
-          itemId,
-          isLiked
+
+
+        // "optimistische" Aktualisierung -> macht UI schon bei auslösen der Funktion aktuell
+        // rollback falls asynchroner api call error wirft
+        if (isLiked) {
+          if (!userLikes.value.includes(itemId)) {
+            userLikes.value.push(itemId);
+          }
+        } else {
+          userLikes.value = userLikes.value.filter(id => id !== itemId);
         }
-      })
-      
-      await loadLikes() // neu laden, aktualisiert ui
+
+        // api call
+        try {
+            await $fetch('/api/likes', {
+                method: 'POST',
+                body: { user: user.value.id, itemId, isLiked }
+            });
+            await loadLikes();
+        } catch (e) {
+            console.error("Fehler beim Liken:", e);
+            userLikes.value = prevLikes; // rollback von ui change
+        }
 
     }
 
+    /*
+    // noch schön machen maybe??
     function isLikedBySomeone(itemId) {
         // schaut, ob in alllikes array die id von dem aktuellen item vorkommt und NICHT von aktivem user geliked wurde
         return allLikes.value.some(like => like.item_id === itemId && like.username !== user.value)
     }
+        */
 
     // sobald user gesetzt ist, laden die likes
     watch(user, async (newUser) => {
@@ -198,11 +242,7 @@
             
             await loadLikes()
         }
-    }
+    })
 
-
-
-
-)
 
 </script>

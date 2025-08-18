@@ -1,38 +1,25 @@
-import { neon } from "@neondatabase/serverless"
+import { createClient } from "@supabase/supabase-js";
 
 export default defineEventHandler(async (e) => {
 
     const config = useRuntimeConfig();
-    const sql = neon(config.DATABASE_URL);
+    const supabase = createClient(config.public.SUPABASE_URL, config.public.SUPABASE_ANON_KEY)
 
     const body = await readBody(e)  // user, itemId, isLiked 
     if (!body.user || !body.itemId) {
         return { success: false, message: 'User und/oder itemId fehlen' }
     }
 
-    const rows = await sql`SELECT items FROM likes WHERE user = ${body.user}`;
-    let items = rows[0]?.items || [];
+
 
     // benutzt allLikes von user, falls es existiert, sonst neuer array erstellt
     if (body.isLiked) {
-        await sql`
-          INSERT INTO likes (username, item_id)
-          VALUES (${body.user}, ${body.itemId})
-          ON CONFLICT (username, item_id) DO NOTHING
-        `
+        const { error } = await supabase.from('likes').insert({user_id: body.user, item_id: body.itemId});
+        if ( error ) console.error("Einfügen von Like hat nicht funktioniert:", error.message);
     } else {
-        await sql`
-          DELETE FROM likes
-          WHERE username = ${body.user} AND item_id = ${body.itemId}
-        `
+        const { error } = await supabase.from('likes').delete().eq("user_id", body.user).eq("item_id", body.itemId);
+        if ( error ) console.error("Löschen von Like hat nicht funktioniert:", error.message);
     }
-
-    await sql`
-      INSERT INTO likes (user, items)
-      VALUES (${body.user}, ${items})
-      ON CONFLICT (user) DO UPDATE
-      SET items = EXCLUDED.items
-    `;
 
     return { success: true }
 })

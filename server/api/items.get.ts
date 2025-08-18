@@ -1,13 +1,18 @@
 // require(...) ist CommonJS syntax, import... from... ist ESM Syntax - Nuxt 3 'basiert auf ESM
 
 
-import { readFile } from 'fs/promises'
+import { createClient } from '@supabase/supabase-js'
 
 // asynchrones Laden der Daten
 export default defineEventHandler(async () => {
 
-  const items = JSON.parse(await readFile('data/items.json', 'utf-8'));
+    const config = useRuntimeConfig()
+    const supabase = createClient(config.public.SUPABASE_URL, config.public.SUPABASE_ANON_KEY)
 
-  return items;
+    // dereferenzierung /// supapase returnt immer promise (?), deswegen await, deswegen in async function
+    const { data, error } = await supabase.from('items').select();
+
+    if (error) console.error("Error beim Laden der Items:", error.message);
+    return data;
 
 })

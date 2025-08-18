@@ -4,9 +4,10 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/fonts', '@nuxt/icon'],
   runtimeConfig: {
-    DATABASE_URL: process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL,
     public: {
       PASSWORT: process.env.NUXT_PASSWORT,
+      SUPABASE_URL: process.env.SUPABASE_URL,
+      SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY      
     }
   }
 })
