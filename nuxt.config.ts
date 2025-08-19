@@ -4,7 +4,12 @@ import { defineNuxtConfig } from "nuxt/config";
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  ssr: false,
+  ssr: true,
+  app: {
+    head: {
+      title: 'Moving Day Seite'
+    }
+  },
   modules: ['@nuxt/fonts', '@nuxt/icon'],
   runtimeConfig: {
     public: {
@@ -15,6 +20,6 @@ export default defineNuxtConfig({
   },
   nitro: {
     // nitro ist für api-routen in nuxt zuständig, mit preset netlify mache es meine api für netlify ausführbar weil es das intern in netlify functions umwandelt
-    preset: 'netlify'
+    preset: 'vercel'
   }
 })
