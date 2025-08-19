@@ -26,10 +26,11 @@
 
                 <img :src=i.img alt="Bild des Objekts" width="200px">                
 
+
                 <h3>{{ i.title }}</h3>
                 <p>{{ i.desc }}</p>
              
-                
+            
                 <button 
                     class="like-button"
                     v-if="!userLikes?.includes(i.id)" 
@@ -42,7 +43,7 @@
                     @click="toggleLike(i.id, false)">
                     <Icon name="material-symbols:favorite-rounded" />
                 </button>
-                
+                <p class="double-like" v-if="isLikedBySomeone(i.id)">Jemand anderes mag das auch :) </p>                    
 
 
 
@@ -84,6 +85,12 @@
     }
     p {
         margin: 8px;
+
+    }
+    .double-like {
+        font-size: 14px;
+        color: rgb(173, 55, 47);
+        font-weight: 700;
 
     }
     img {
@@ -187,24 +194,16 @@
 
     async function loadLikes() {
 
-        // lädt likes vom aktiven user
-        /*
-        const uLikes = await $fetch(`/api/likes?user=${user.value.id}`);
-        // id extrahieren (für includes oben beim button) - noch cleaner machen?
-        userLikes.value = uLikes?.map(l => l.item_id) || [];
-
-        console.log(`user likes: ${userLikes.value}`);
-        */
-
-
         // lädt likes von allen usern 
         const aLikes = await $fetch(`/api/likes`);
-        allLikes.value = aLikes?.map(l => l.item_id) || []; // allLikes: array von geliketen items_ids
+        // speichert alles komplett (also mit user_id, item_id, ...)
+        allLikes.value = aLikes || [];
 
         console.log(`all likes: ${allLikes.value}`);
 
         // holt likes von aktivem nutzer raus
         const uLikes = aLikes.filter(l => l.user_id === user.value.id);
+        // macht daraus liste von ids - für die includes funktion oben
         userLikes.value = uLikes.map(l => l.item_id);
         
     }
@@ -237,13 +236,13 @@
 
     }
 
-    /*
+    
     // noch schön machen maybe??
     function isLikedBySomeone(itemId) {
         // schaut, ob in alllikes array die id von dem aktuellen item vorkommt und NICHT von aktivem user geliked wurde
-        return allLikes.value.some(like => like.item_id === itemId && like.username !== user.value)
+        return allLikes.value.some(like => like.item_id === itemId && like.user_id !== user.value.id)
     }
-        */
+    
 
     // sobald user gesetzt ist, laden die likes
     watch(user, async (newUser) => {
