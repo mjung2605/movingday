@@ -1,6 +1,6 @@
 [build]
   command = "npm run build"
-  publish = ".nuxt/dist/client"
+  publish = ".output/public"
 
 [functions]
   # Nitro schreibt die Netlify-targetted Functions unter:
