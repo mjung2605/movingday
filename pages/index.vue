@@ -24,20 +24,20 @@
 
             <div v-for="i in items" :key="i.id" class="card">
 
-                <!-- <img :src=i.image alt="Bild des Objekts" width="200px">
-                -->
-                
+                <img :src=i.img alt="Bild des Objekts" width="200px">                
 
                 <h3>{{ i.title }}</h3>
                 <p>{{ i.desc }}</p>
              
                 
                 <button 
+                    class="like-button"
                     v-if="!userLikes?.includes(i.id)" 
                     @click="toggleLike(i.id, true)">
                     <Icon name="material-symbols:favorite-outline-rounded" />
                 </button>
                 <button 
+                    class="like-button"
                     v-else
                     @click="toggleLike(i.id, false)">
                     <Icon name="material-symbols:favorite-rounded" />
@@ -98,6 +98,15 @@
         border: none;
         border-radius: 4px;
         color: white;
+    }
+    .like-button {
+        width: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    a {
+        color: rgb(170, 132, 82);
     }
     input {
         border-radius: 4px;
