@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     }
   },
   nitro: {
+    // nitro ist für api-routen in nuxt zuständig, mit preset netlify mache es meine api für netlify ausführbar weil es das intern in netlify functions umwandelt
     preset: 'netlify'
   }
 })

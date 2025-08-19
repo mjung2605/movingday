@@ -1,0 +1,7 @@
+[build]
+  command = "npm run build"
+  publish = ".nuxt/dist/client"
+
+[functions]
+  # Nitro schreibt die Netlify-targetted Functions unter:
+  directory = ".netlify/functions-internal/server"
