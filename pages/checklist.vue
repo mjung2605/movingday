@@ -6,6 +6,7 @@
         
         <h3>Allgemeine Tipps</h3>
         <ul>
+            <li>Möbel etc. kaufen und aufstellen, mit dem Gedanken, dass man die auch alle saubermachen muss/saugen muss!! Vor allem bei Teppichen</li>
             <li>IKEA Raumplanung oder Grundriss der Wohnung benutzen, um Einrichtung zu planen</li>
             <li>Check24 für z.B. Hausratversicherung, Strom- oder Internettarif benutzen</li>
             <li>Die Online-Services der jeweiligen Stadt researchen, sonst rechtzeitig Termin machen (Ummelden Person/Auto)</li>
@@ -14,30 +15,14 @@
 
         <h3>Bürokratie</h3>
         <ul>
-            <li>
-                Sich selbst ummelden auf neue Adresse - geht manchmal online, man bekommt dann Sticker für Ausweis per Post
-            </li>
-            <li>
-                Auto ummelden (geht manchmal online), Kennzeichen muss nicht unbedingt geändert werden
-            </li>
-            <li>
-                Adressen ändern bei z.B. Krankenkasse, Job, ...
-            </li>
-            <li>
-                Haftpflichtversicherung abschließen
-            </li>
-            <li>
-                Hausratversicherung abschließen
-            </li> 
-            <li>
-                Rundfunkbeitrag anmelden oder befreien (oder warten bis die sich melden)
-            </li>
-            <li>
-                Verfügbares Internet abklären (DSL, Kabel, Glasfaser), entsprechenden Internettarif abschließen
-            </li>
-            <li>
-                Eigenen Stromtarif abschließen (falls nicht Teil von Miete), denn Grundversorgung ist teuer! 
-            </li>
+            <li>Sich selbst ummelden auf neue Adresse - geht manchmal online, man bekommt dann Sticker für Ausweis per Post</li>
+            <li>Auto ummelden (geht manchmal online), Kennzeichen muss nicht unbedingt geändert werden</li>
+            <li>Adressen ändern bei z.B. Krankenkasse, Job, ...</li>
+            <li>Haftpflichtversicherung abschließen</li>
+            <li>Hausratversicherung abschließen</li> 
+            <li>Rundfunkbeitrag anmelden oder befreien (oder warten bis die sich melden) </li>
+            <li>Verfügbares Internet abklären (DSL, Kabel, Glasfaser), entsprechenden Internettarif abschließen</li>
+            <li>Eigenen Stromtarif abschließen (falls nicht Teil von Miete), denn Grundversorgung ist teuer!</li>
         </ul>
 
         <h3>
